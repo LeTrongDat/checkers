@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-09-20T05:20:54.629Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.167 YaBrowser/22.7.5.1027 Yowser/2.5 Safari/537.36" etag="wAV3EWxzc5zLOryHGGX-" version="20.3.0" type="github">
+<mxfile host="app.diagrams.net" modified="2022-09-20T05:36:05.287Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.167 YaBrowser/22.7.5.1027 Yowser/2.5 Safari/537.36" etag="Wa4jZ4QEfm6yKGoNI1qI" version="20.3.0" type="github">
   <diagram id="n2CfRdgOv8Eu1pIGLI4z" name="Checkers Design">
     <mxGraphModel dx="1614" dy="799" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -282,7 +282,7 @@
         <mxCell id="XqdHak8IX0U-SEa1hAU3-111" value="add query service in query type" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="1350" y="1390" width="120" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="XqdHak8IX0U-SEa1hAU3-114" value="add object to genesis type" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-114" value="add object to genesis&amp;nbsp;" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="1350" y="1518" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="XqdHak8IX0U-SEa1hAU3-116" value="" style="labelPosition=right;align=left;strokeWidth=1;shape=mxgraph.mockup.markup.curlyBrace;html=1;shadow=0;dashed=0;strokeColor=#999999;direction=north;fontSize=14;rotation=-180;" vertex="1" parent="1">
@@ -305,7 +305,10 @@
         <mxCell id="XqdHak8IX0U-SEa1hAU3-128" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" source="XqdHak8IX0U-SEa1hAU3-119" target="XqdHak8IX0U-SEa1hAU3-127">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="XqdHak8IX0U-SEa1hAU3-130" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" edge="1" parent="1" source="XqdHak8IX0U-SEa1hAU3-119" target="XqdHak8IX0U-SEa1hAU3-129">
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-134" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" source="XqdHak8IX0U-SEa1hAU3-119" target="XqdHak8IX0U-SEa1hAU3-132">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-135" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" source="XqdHak8IX0U-SEa1hAU3-119" target="XqdHak8IX0U-SEa1hAU3-133">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="XqdHak8IX0U-SEa1hAU3-119" value="&lt;span style=&quot;&quot;&gt;Regen protobuf in &lt;br&gt;types folder&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
@@ -320,11 +323,26 @@
         <mxCell id="XqdHak8IX0U-SEa1hAU3-127" value="implement keeper (CRUD)" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
           <mxGeometry x="1810" y="1500.53" width="130" height="88.99" as="geometry" />
         </mxCell>
-        <mxCell id="XqdHak8IX0U-SEa1hAU3-129" value="type/genesis.go&lt;br&gt;x/checkers/genesis.go" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="1545" y="1674" width="180" height="129.98" as="geometry" />
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-139" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" edge="1" parent="1" source="XqdHak8IX0U-SEa1hAU3-132" target="XqdHak8IX0U-SEa1hAU3-133">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="XqdHak8IX0U-SEa1hAU3-131" value="????" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="1655" y="1565" width="50" height="30" as="geometry" />
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-132" value="type/genesis.go" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1810" y="1631.03" width="130" height="88.99" as="geometry" />
+        </mxCell>
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-133" value="x/checkers/genesis.go" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1810" y="1780" width="130" height="88.99" as="geometry" />
+        </mxCell>
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-136" value="=&amp;gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1950" y="1665" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-137" value="Create &lt;br&gt;Default Genesis" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1990" y="1655" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-138" value="=&amp;gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1960" y="1809.49" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="XqdHak8IX0U-SEa1hAU3-140" value="Use Default Genesis to set state&lt;br&gt;for state machine" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="2000" y="1799.49" width="220" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
