@@ -15,6 +15,7 @@ import (
 const (
 	alice = "cosmos17tsnrh8xvlk9epawu4536fun397mj9j020vkvh"
 	bob   = "cosmos1669z3qdseth93n83whlx72qrnjdwdqn4gcz8xx"
+	carol = "cosmos1xr0ug9d8r5yg0nay0gtsxek06yj0zmt6sldatq"
 )
 
 func setupMsgServerCreateGame(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context) {

@@ -30329,6 +30329,16 @@ paths:
           in: query
           required: false
           type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
       tags:
         - Query
   '/LeTrongDat/checkers/checkers/stored_game/{index}':
@@ -51801,6 +51811,17 @@ definitions:
     type: object
     properties:
       gameIndex:
+        type: string
+  letrongdat.checkers.checkers.MsgPlayMoveResponse:
+    type: object
+    properties:
+      capturedX:
+        type: integer
+        format: int32
+      capturedY:
+        type: integer
+        format: int32
+      winner:
         type: string
   letrongdat.checkers.checkers.Params:
     type: object
