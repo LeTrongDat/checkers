@@ -24,3 +24,20 @@ func KeyPrefix(p string) []byte {
 const (
 	SystemInfoKey = "SystemInfo-value-"
 )
+
+const (
+	GameCreatedEventType      = "new-game-created"
+	GameCreatedEventCreator   = "creator"
+	GameCreatedEventGameIndex = "game-index"
+	GameCreatedEventBlack     = "black"
+	GameCreatedEventRed       = "red"
+)
+
+const (
+	MovePlayedEventType      = "move-played"
+	MovePlayedEventCreator   = "creator"
+	MovePlayedEventGameIndex = "game-index"
+	MovePlayedEventCapturedX = "capture-x"
+	MovePlayedEventCapturedY = "capture-y"
+	MovePlayedEventWinner    = "winner"
+)

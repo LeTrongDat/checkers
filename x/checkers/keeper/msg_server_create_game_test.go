@@ -189,3 +189,26 @@ func TestCreateGameFarFuture(t *testing.T) {
 	})
 
 }
+
+func TestCreateGameEmitted(t *testing.T) {
+	msgServer, _, context := setupMsgServerCreateGame(t)
+	msgServer.CreateGame(context, &types.MsgCreateGame{
+		Creator: alice,
+		Black:   alice,
+		Red:     bob,
+	})
+	ctx := sdk.UnwrapSDKContext(context)
+	require.NotNil(t, ctx)
+	events := sdk.StringifyEvents(ctx.EventManager().ABCIEvents())
+	require.Len(t, events, 1)
+	event := events[0]
+	require.EqualValues(t, sdk.StringEvent{
+		Type: "new-game-created",
+		Attributes: []sdk.Attribute{
+			{Key: "creator", Value: alice},
+			{Key: "game-index", Value: "1"},
+			{Key: "black", Value: alice},
+			{Key: "red", Value: bob},
+		},
+	}, event)
+}
