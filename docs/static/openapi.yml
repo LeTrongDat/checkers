@@ -51823,6 +51823,8 @@ definitions:
         format: int32
       winner:
         type: string
+  letrongdat.checkers.checkers.MsgRejectGameResponse:
+    type: object
   letrongdat.checkers.checkers.Params:
     type: object
     description: Params defines the parameters for the module.
