@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 const (
 	// ModuleName defines the module name
 	ModuleName = "checkers"
@@ -31,6 +33,7 @@ const (
 	GameCreatedEventGameIndex = "game-index"
 	GameCreatedEventBlack     = "black"
 	GameCreatedEventRed       = "red"
+	GameCreatedEventWager     = "wager"
 )
 
 const (
@@ -40,10 +43,34 @@ const (
 	MovePlayedEventCapturedX = "capture-x"
 	MovePlayedEventCapturedY = "capture-y"
 	MovePlayedEventWinner    = "winner"
+	MovePlayedEventBoard     = "board"
 )
 
 const (
 	GameRejectedEventType      = "game-rejected"
 	GameRejectedEventCreator   = "creator"
 	GameRejectedEventGameIndex = "game-index"
+)
+
+const (
+	NoFifoIndex = "-1"
+)
+
+const (
+	// MaxTurnDuration = time.Duration(24 * 3_600 * 1000_000_000) // 1 day
+	MaxTurnDuration = time.Duration(5 * 60 * 1000_000_000) // 5 minutes
+	DeadlineLayout  = "2006-01-02 15:04:05.999999999 +0000 UTC"
+)
+
+const (
+	GameForfeitedEventType      = "game-forfeited"
+	GameForfeitedEventGameIndex = "game-index"
+	GameForfeitedEventWinner    = "winner"
+	GameForfeitedEventBoard     = "board"
+)
+
+const (
+	CreateGameGas       = 15000
+	PlayMoveGas         = 1000
+	RejectGameRefundGas = 14000
 )

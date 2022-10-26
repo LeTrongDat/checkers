@@ -3,6 +3,7 @@ package keeper
 import (
 	"testing"
 
+	"github.com/LeTrongDat/checkers/testutil/mock_types"
 	"github.com/LeTrongDat/checkers/x/checkers/keeper"
 	"github.com/LeTrongDat/checkers/x/checkers/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -18,6 +19,10 @@ import (
 )
 
 func CheckersKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
+	return CheckersKeeperWithMock(t, nil)
+}
+
+func CheckersKeeperWithMock(t testing.TB, bank *mock_types.MockBankEscrowKeeper) (*keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -41,6 +46,7 @@ func CheckersKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		storeKey,
 		memStoreKey,
 		paramsSubspace,
+		bank,
 	)
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())

@@ -10,6 +10,10 @@ message StoredGame {
   string black = 4; 
   string turn = 5;
   uint64 moveCount = 6;
-  
+  string beforeIndex = 7;
+  string afterIndex = 8; 
+  string deadline = 9;
+  string winner = 10;
+  uint64 wager = 11;
 }
 

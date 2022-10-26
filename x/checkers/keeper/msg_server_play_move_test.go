@@ -5,15 +5,20 @@ import (
 	"testing"
 
 	keepertest "github.com/LeTrongDat/checkers/testutil/keeper"
+	"github.com/LeTrongDat/checkers/testutil/mock_types"
 	"github.com/LeTrongDat/checkers/x/checkers"
 	"github.com/LeTrongDat/checkers/x/checkers/keeper"
 	"github.com/LeTrongDat/checkers/x/checkers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
 
-func setupMsgServerWithOneGameForPlayMove(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context) {
-	k, ctx := keepertest.CheckersKeeper(t)
+func setupMsgServerWithOneGameForPlayMove(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context, *gomock.Controller, *mock_types.MockBankEscrowKeeper) {
+	ctrl := gomock.NewController(t)
+	bankMock := mock_types.NewMockBankEscrowKeeper(ctrl)
+	k, ctx := keepertest.CheckersKeeperWithMock(t, bankMock)
+
 	checkers.InitGenesis(ctx, *k, *types.DefaultGenesis())
 	server := keeper.NewMsgServerImpl(*k)
 	context := sdk.WrapSDKContext(ctx)
@@ -21,12 +26,15 @@ func setupMsgServerWithOneGameForPlayMove(t testing.TB) (types.MsgServer, keeper
 		Creator: alice,
 		Black:   bob,
 		Red:     alice,
+		Wager:   45,
 	})
-	return server, *k, context
+	return server, *k, context, ctrl, bankMock
 }
 
 func TestPlayMove(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	playMoveResponse, err := msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		GameIndex: "1",
@@ -44,7 +52,8 @@ func TestPlayMove(t *testing.T) {
 }
 
 func TestPlayMoveGameNotFound(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, _ := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
 	playMoveResponse, err := msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		GameIndex: "2",
@@ -58,7 +67,9 @@ func TestPlayMoveGameNotFound(t *testing.T) {
 }
 
 func TestPlayMoveSameBlackRed(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	msgServer.CreateGame(context, &types.MsgCreateGame{
 		Creator: alice,
 		Black:   bob,
@@ -81,7 +92,9 @@ func TestPlayMoveSameBlackRed(t *testing.T) {
 }
 
 func TestPlayMoveSavedGame(t *testing.T) {
-	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, keeper, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	ctx := sdk.UnwrapSDKContext(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
@@ -94,22 +107,31 @@ func TestPlayMoveSavedGame(t *testing.T) {
 	systemInfo, found := keeper.GetSystemInfo(ctx)
 	require.True(t, found)
 	require.EqualValues(t, systemInfo, types.SystemInfo{
-		NextId: 2,
+		NextId:        2,
+		FifoHeadIndex: "1",
+		FifoTailIndex: "1",
 	})
 
 	game, found := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found)
 	require.EqualValues(t, game, types.StoredGame{
-		Index: "1",
-		Board: "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Turn:  "r",
-		Black: bob,
-		Red:   alice,
+		Index:       "1",
+		Board:       "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "r",
+		Black:       bob,
+		Red:         alice,
+		MoveCount:   1,
+		BeforeIndex: "-1",
+		AfterIndex:  "-1",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
+		Wager:       45,
 	})
 }
 
 func TestPlayMoveNotPlayer(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, _ := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
 	playMoveResponse, err := msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   carol,
 		GameIndex: "1",
@@ -123,7 +145,8 @@ func TestPlayMoveNotPlayer(t *testing.T) {
 }
 
 func TestPlayMoveWrongOutOfTurn(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, _ := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
 	playMoveResponse, err := msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   alice,
 		GameIndex: "1",
@@ -137,7 +160,8 @@ func TestPlayMoveWrongOutOfTurn(t *testing.T) {
 }
 
 func TestPlayMoveWrongMove(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, _ := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
 	playMoveResponse, err := msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		GameIndex: "1",
@@ -151,7 +175,8 @@ func TestPlayMoveWrongMove(t *testing.T) {
 }
 
 func TestPlayMoveCannotParseGame(t *testing.T) {
-	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, keeper, context, ctrl, _ := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
 	ctx := sdk.UnwrapSDKContext(context)
 	storedGame, _ := keeper.GetStoredGame(ctx, "1")
 	storedGame.Board = "not a board"
@@ -173,7 +198,9 @@ func TestPlayMoveCannotParseGame(t *testing.T) {
 }
 
 func TestPlayMove2(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		GameIndex: "1",
@@ -199,7 +226,9 @@ func TestPlayMove2(t *testing.T) {
 }
 
 func TestPlayMove2SavedGame(t *testing.T) {
-	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, keeper, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		GameIndex: "1",
@@ -221,22 +250,32 @@ func TestPlayMove2SavedGame(t *testing.T) {
 	systemInfo, found := keeper.GetSystemInfo(ctx)
 	require.True(t, found)
 	require.EqualValues(t, types.SystemInfo{
-		NextId: 2,
+		NextId:        2,
+		FifoHeadIndex: "1",
+		FifoTailIndex: "1",
 	}, systemInfo)
 
 	game, found := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found)
 	require.EqualValues(t, types.StoredGame{
-		Index: "1",
-		Black: bob,
-		Red:   alice,
-		Turn:  "b",
-		Board: "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|*r******|**r*r*r*|*r*r*r*r|r*r*r*r*",
+		Index:       "1",
+		Black:       bob,
+		Red:         alice,
+		Turn:        "b",
+		Board:       "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|*r******|**r*r*r*|*r*r*r*r|r*r*r*r*",
+		MoveCount:   2,
+		BeforeIndex: "-1",
+		AfterIndex:  "-1",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
+		Wager:       45,
 	}, game)
 }
 
 func TestPlayMove3(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		FromX:     1,
@@ -270,7 +309,9 @@ func TestPlayMove3(t *testing.T) {
 }
 
 func TestPlayMove3SavedGame(t *testing.T) {
-	msgServer, keeper, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, keeper, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	msgServer.PlayMove(context, &types.MsgPlayMove{
 		Creator:   bob,
 		GameIndex: "1",
@@ -299,22 +340,32 @@ func TestPlayMove3SavedGame(t *testing.T) {
 	systemInfo, found := keeper.GetSystemInfo(ctx)
 	require.True(t, found)
 	require.EqualValues(t, types.SystemInfo{
-		NextId: 2,
+		NextId:        2,
+		FifoHeadIndex: "1",
+		FifoTailIndex: "1",
 	}, systemInfo)
 
 	game, found := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found)
 	require.EqualValues(t, types.StoredGame{
-		Index: "1",
-		Board: "*b*b*b*b|b*b*b*b*|***b*b*b|********|********|b*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Black: bob,
-		Red:   alice,
-		Turn:  "r",
+		Index:       "1",
+		Board:       "*b*b*b*b|b*b*b*b*|***b*b*b|********|********|b*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Black:       bob,
+		Red:         alice,
+		Turn:        "r",
+		MoveCount:   3,
+		BeforeIndex: "-1",
+		AfterIndex:  "-1",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
+		Wager:       45,
 	}, game)
 }
 
 func TestPlayMoveEmitted(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	ctx := sdk.UnwrapSDKContext(context)
 	require.NotNil(t, ctx)
 
@@ -339,13 +390,16 @@ func TestPlayMoveEmitted(t *testing.T) {
 			{Key: "capture-x", Value: "-1"},
 			{Key: "capture-y", Value: "-1"},
 			{Key: "winner", Value: "*"},
+			{Key: "board", Value: "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|********|r*r*r*r*|*r*r*r*r|r*r*r*r*"},
 		},
 	}, event)
 
 }
 
 func TestPlayMove2Emitted(t *testing.T) {
-	msgServer, _, context := setupMsgServerWithOneGameForPlayMove(t)
+	msgServer, _, context, ctrl, escrow := setupMsgServerWithOneGameForPlayMove(t)
+	defer ctrl.Finish()
+	escrow.ExpectAny(context)
 	ctx := sdk.UnwrapSDKContext(context)
 	require.NotNil(t, ctx)
 
@@ -375,6 +429,7 @@ func TestPlayMove2Emitted(t *testing.T) {
 		{Key: "capture-x", Value: "-1"},
 		{Key: "capture-y", Value: "-1"},
 		{Key: "winner", Value: "*"},
-	}, event.Attributes[5:])
+		{Key: "board", Value: "*b*b*b*b|b*b*b*b*|***b*b*b|**b*****|*r******|**r*r*r*|*r*r*r*r|r*r*r*r*"},
+	}, event.Attributes[6:])
 
 }

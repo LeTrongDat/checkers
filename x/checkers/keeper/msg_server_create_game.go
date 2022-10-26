@@ -22,20 +22,28 @@ func (k msgServer) CreateGame(goCtx context.Context, msg *types.MsgCreateGame) (
 
 	newGame := rules.New()
 	storedGame := types.StoredGame{
-		Index:     newIndex,
-		Board:     newGame.String(),
-		Turn:      rules.PieceStrings[newGame.Turn],
-		Black:     msg.Black,
-		Red:       msg.Red,
-		MoveCount: 0,
+		Index:       newIndex,
+		Board:       newGame.String(),
+		Turn:        rules.PieceStrings[newGame.Turn],
+		Black:       msg.Black,
+		Red:         msg.Red,
+		BeforeIndex: types.NoFifoIndex,
+		AfterIndex:  types.NoFifoIndex,
+		MoveCount:   0,
+		Deadline:    types.FormatDeadline(types.GetNextDeadline(ctx)),
+		Winner:      rules.PieceStrings[rules.NO_PLAYER],
+		Wager:       msg.Wager,
 	}
 	if err := storedGame.Validate(); err != nil {
 		return nil, err
 	}
+	k.Keeper.SendToFifoTail(ctx, &storedGame, &systemInfo)
 	k.Keeper.SetStoredGame(ctx, storedGame)
 
 	systemInfo.NextId++
 	k.Keeper.SetSystemInfo(ctx, systemInfo)
+
+	ctx.GasMeter().ConsumeGas(types.CreateGameGas, "Create Game")
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(types.GameCreatedEventType,
@@ -43,6 +51,7 @@ func (k msgServer) CreateGame(goCtx context.Context, msg *types.MsgCreateGame) (
 			sdk.NewAttribute(types.GameCreatedEventGameIndex, newIndex),
 			sdk.NewAttribute(types.GameCreatedEventBlack, msg.Black),
 			sdk.NewAttribute(types.GameCreatedEventRed, msg.Red),
+			sdk.NewAttribute(types.GameCreatedEventWager, strconv.FormatUint(msg.Wager, 10)),
 		),
 	)
 

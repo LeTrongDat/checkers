@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	alice = "cosmos17tsnrh8xvlk9epawu4536fun397mj9j020vkvh"
-	bob   = "cosmos1669z3qdseth93n83whlx72qrnjdwdqn4gcz8xx"
-	carol = "cosmos1xr0ug9d8r5yg0nay0gtsxek06yj0zmt6sldatq"
+	alice = "cosmos1p5tkxnnhh94lvju6pv4c8tg767a2207l89rpx2"
+	bob   = "cosmos16ur8ptycskmasf8jhuh6mlvrwq6ndwq47zqnar"
+	carol = "cosmos1kalq3jrxqqaqwqnzw7hrh8dah3d4ncax34m4tr"
 )
 
 func setupMsgServerCreateGame(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context) {
@@ -48,17 +48,23 @@ func TestCreateGameHasSaved(t *testing.T) {
 	systemInfo, found := keeper.GetSystemInfo(ctx)
 	require.True(t, found)
 	require.EqualValues(t, systemInfo, types.SystemInfo{
-		NextId: 2,
+		NextId:        2,
+		FifoHeadIndex: "1",
+		FifoTailIndex: "1",
 	})
 
 	game1, found1 := keeper.GetStoredGame(ctx, "1")
 	require.True(t, found1)
 	require.EqualValues(t, game1, types.StoredGame{
-		Index: "1",
-		Board: "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Turn:  "b",
-		Black: alice,
-		Red:   bob,
+		Index:       "1",
+		Board:       "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "b",
+		Black:       alice,
+		Red:         bob,
+		BeforeIndex: "-1",
+		AfterIndex:  "-1",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
 	})
 }
 
@@ -73,11 +79,15 @@ func TestCreateGameGetAll(t *testing.T) {
 	games := keeper.GetAllStoredGame(ctx)
 	require.Len(t, games, 1)
 	require.EqualValues(t, games[0], types.StoredGame{
-		Index: "1",
-		Board: "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Turn:  "b",
-		Black: alice,
-		Red:   bob,
+		Index:       "1",
+		Board:       "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "b",
+		Black:       alice,
+		Red:         bob,
+		BeforeIndex: "-1",
+		AfterIndex:  "-1",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
 	})
 }
 
@@ -125,34 +135,48 @@ func TestCreate3Games(t *testing.T) {
 	systemInfo, found := keeper.GetSystemInfo(ctx)
 	require.True(t, found)
 	require.EqualValues(t, systemInfo, types.SystemInfo{
-		NextId: 4,
+		NextId:        4,
+		FifoHeadIndex: "1",
+		FifoTailIndex: "3",
 	})
 
 	games := keeper.GetAllStoredGame(ctx)
 	require.Len(t, games, 3)
 
 	require.EqualValues(t, games[0], types.StoredGame{
-		Index: "1",
-		Board: "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Black: alice,
-		Red:   bob,
-		Turn:  "b",
+		Index:       "1",
+		Board:       "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Black:       alice,
+		Red:         bob,
+		Turn:        "b",
+		BeforeIndex: "-1",
+		AfterIndex:  "2",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
 	})
 
 	require.EqualValues(t, games[1], types.StoredGame{
-		Index: "2",
-		Board: "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Black: bob,
-		Red:   alice,
-		Turn:  "b",
+		Index:       "2",
+		Board:       "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Black:       bob,
+		Red:         alice,
+		Turn:        "b",
+		BeforeIndex: "1",
+		AfterIndex:  "3",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
 	})
 
 	require.EqualValues(t, games[2], types.StoredGame{
-		Index: "3",
-		Board: "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Black: bob,
-		Red:   alice,
-		Turn:  "b",
+		Index:       "3",
+		Board:       "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Black:       bob,
+		Red:         alice,
+		Turn:        "b",
+		BeforeIndex: "2",
+		AfterIndex:  "-1",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
 	})
 }
 
@@ -175,17 +199,23 @@ func TestCreateGameFarFuture(t *testing.T) {
 	systemInfo, found = keeper.GetSystemInfo(ctx)
 	require.True(t, found)
 	require.EqualValues(t, systemInfo, types.SystemInfo{
-		NextId: 1025,
+		NextId:        1025,
+		FifoHeadIndex: "1024",
+		FifoTailIndex: "1024",
 	})
 
 	game, found := keeper.GetStoredGame(ctx, "1024")
 	require.True(t, found)
 	require.EqualValues(t, game, types.StoredGame{
-		Index: "1024",
-		Board: "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
-		Turn:  "b",
-		Black: alice,
-		Red:   bob,
+		Index:       "1024",
+		Board:       "*b*b*b*b|b*b*b*b*|*b*b*b*b|********|********|r*r*r*r*|*r*r*r*r|r*r*r*r*",
+		Turn:        "b",
+		Black:       alice,
+		Red:         bob,
+		BeforeIndex: "-1",
+		AfterIndex:  "-1",
+		Deadline:    types.FormatDeadline(ctx.BlockTime().Add(types.MaxTurnDuration)),
+		Winner:      "*",
 	})
 
 }
@@ -209,6 +239,21 @@ func TestCreateGameEmitted(t *testing.T) {
 			{Key: "game-index", Value: "1"},
 			{Key: "black", Value: alice},
 			{Key: "red", Value: bob},
+			{Key: "wager", Value: "0"},
 		},
 	}, event)
+}
+
+func TestCreate1GameConsumedGas(t *testing.T) {
+	msgSrvr, _, context := setupMsgServerCreateGame(t)
+	ctx := sdk.UnwrapSDKContext(context)
+	before := ctx.GasMeter().GasConsumed()
+	msgSrvr.CreateGame(context, &types.MsgCreateGame{
+		Creator: alice,
+		Black:   bob,
+		Red:     carol,
+		Wager:   45,
+	})
+	after := ctx.GasMeter().GasConsumed()
+	require.GreaterOrEqual(t, after, before+25_000)
 }
